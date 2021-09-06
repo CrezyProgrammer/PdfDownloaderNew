@@ -63,6 +63,7 @@ class ForegroundService : Service() {
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Downloading File")
+            .setAutoCancel(true)
             .setContentText("Wait some moment")
             .setContentIntent(pendingIntent)
             .build()
