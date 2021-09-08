@@ -28,6 +28,7 @@ import okhttp3.OkHttpClient;
 
 public class ForgroundService extends Service {
     private String CHANNEL_ID = "ForegroundServic";
+    public static  String path="";
     public static boolean isDownload=false;
    DownloadManager downloadManager;
     @Nullable
@@ -149,7 +150,7 @@ public class ForgroundService extends Service {
 
                         Log.i("123321","153:"+filePath);
                         notifyUser(name,"Download Complete", 1);
-
+                        path=filePath;
                         Intent intent =new Intent("timer_tracking");
                         intent.putExtra("complete", true);
                         intent.putExtra("path",filePath);

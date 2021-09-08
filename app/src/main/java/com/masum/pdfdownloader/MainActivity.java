@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements  ItemClick {
         layoutBinding=DownloadDialogBinding.inflate(getLayoutInflater());
         showDialog();
 
-        list=new ArrayList<Item>();
+        list= new ArrayList<>();
         list.add(new Item("Test Name", "https://jsoncompare.org/LearningContainer/SampleFiles/PDF/sample-pdf-with-images.pdf"));
         list.add(new Item("File Sample 150kb","https://file-examples-com.github.io/uploads/2017/10/file-sample_150kB.pdf"));
         list.add(new Item("Rahe Belayet","https://www.pixelapps.info/my_important_files/pdf_files/rahe_belayat.pdf"));
@@ -76,20 +76,21 @@ public class MainActivity extends AppCompatActivity implements  ItemClick {
                 if (complete){
                     if (binding.recyclerview.getAdapter()!=null)  binding.recyclerview.getAdapter().notifyDataSetChanged();
                     isComplete=true;
-                    if (dialog!=null &&dialog.isShowing())
-                        dialog.dismiss();
-                    Log.i("123321", "onReceive: File download complete is Running:"+isRunning+" is dialog showing:"+dialog.isShowing());
 
-                    File file=new File(intent.getStringExtra("path"));
+
+                    File file=new File(ForgroundService.path);
                     if (file.exists())
                     {
                         if (isRunning&&dialog.isShowing()){
+                            if (dialog!=null &&dialog.isShowing())
+                                dialog.dismiss();
+
                             startActivity(
                                     new Intent(MainActivity.this, PdfActivity.class).putExtra(
                                     "path",
-                                    file.getAbsoluteFile()
-                                    //  holder.main.context.applicationInfo.dataDir.toString() + "/book.pdf"
+                                    file.getAbsolutePath()
                                     )
+
                            );
                         }
                         else Toast.makeText(MainActivity.this,"Download Complete",Toast.LENGTH_SHORT).show();
@@ -140,10 +141,10 @@ public class MainActivity extends AppCompatActivity implements  ItemClick {
         Log.i("123321","item click");
 
 
-        File file=new File(this.getApplicationInfo().dataDir.toString()+"/" +item.name+".pdf");
+        File file=new File(this.getApplicationInfo().dataDir +"/" +item.name+".pdf");
         if (file.exists()){
             startActivity(
-                    new Intent(this, MainActivity2.class).putExtra(
+                    new Intent(this, PdfActivity.class).putExtra(
                     "path",
                     file.getAbsolutePath()
 

@@ -7,40 +7,47 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.NumberPicker;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.masum.pdfdownloader.databinding.ActivityPdfBinding;
+
 import java.io.File;
 
 
-public class PdfActivity extends AppCompatActivity {
+public class PdfActivityFull extends AppCompatActivity {
     SharedPreferences preference;
     private  Boolean isNightMode=false;
     private  Boolean isVertical=true;
     private  Boolean isFullScreen=false;
     private ActivityPdfBinding binding;
-
+    private  Boolean isHide=false;
+    Handler handler;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding= ActivityPdfBinding.inflate(getLayoutInflater());
 
-        preference=getSharedPreferences("mode", MODE_PRIVATE);
-        isFullScreen=preference.getBoolean("fullScreen",false);
-        if (isFullScreen) {
+
+
             Log.i("123321",isFullScreen.toString());
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
+
         setContentView(binding.getRoot());
+
+        isFullScreen=true;
+
+        preference=getSharedPreferences("mode", MODE_PRIVATE);
         binding.fullScreen.setImageDrawable(ContextCompat.getDrawable(this,isFullScreen?R.drawable.ic_baseline_fullscreen_24:R.drawable.ic_baseline_fullscreen_exit_24));
 
         isNightMode=preference.getBoolean("night",false);
@@ -50,23 +57,27 @@ public class PdfActivity extends AppCompatActivity {
         modeSelection();
 
 
-        Log.i("123321","nightMode:"+isNightMode);
+        Log.i("123321","page:"+getIntent().getIntExtra("current_page",0));
+
         loadPdf(getIntent().getIntExtra("current_page",0));
 
     }
 
     private void clickEvents() {
+        binding.pdfView.setOnClickListener(view -> hide());
         binding.first.setOnClickListener(view -> {
+
             {  loadPdf(0);}
         });
 
         binding.fullScreen.setOnClickListener(view -> {
-            Log.i("123321","fullPage"+binding.pdfView.getCurrentPage());
-            Intent intent=new Intent(this,PdfActivityFull.class);
 
-            intent.putExtra("current_page",binding.pdfView.getCurrentPage());
-           intent .putExtra("path",getIntent().getStringExtra("path"));
-           startActivity(intent);
+
+            startActivity(new Intent(this, PdfActivity.class)
+            .putExtra("path",getIntent().getStringExtra("path"))
+
+                    .putExtra("page",binding.pdfView.getCurrentPage())
+            );
             finish();
 
         });
@@ -83,6 +94,7 @@ public class PdfActivity extends AppCompatActivity {
         binding.last.setOnClickListener (view -> { loadPdf(binding.pdfView.getPageCount()) ;});
 
         binding.pageSelection.setOnClickListener(view -> {
+            if (handler!=null)handler.removeCallbacksAndMessages(null);
                     NumberPicker numberPicker = new NumberPicker(this);
                     //   changeDividerColor(numberPicker, Color.parseColor("#20000000"));
                     numberPicker.setMaxValue(binding.pdfView.getPageCount());
@@ -104,7 +116,11 @@ public class PdfActivity extends AppCompatActivity {
             SharedPreferences.Editor editor=getSharedPreferences("mode", MODE_PRIVATE).edit();
             editor.putBoolean("night",isNightMode);
             editor.apply();
+
+            Log.i("123321","mode is night="+isNightMode);
+
             checkNightMode();
+
             loadPdf(binding.pdfView.getCurrentPage());
 
         });
@@ -131,6 +147,7 @@ public class PdfActivity extends AppCompatActivity {
     }
 
     private void loadPdf(int i) {
+        hide();
         binding.progress.setVisibility(View.VISIBLE);
         if (preference != null) {
             String path=getIntent().getStringExtra("path");
@@ -139,7 +156,6 @@ public class PdfActivity extends AppCompatActivity {
             }
      else {
                 File file=new File(path);
-                Log.i("123321", "loadpdf: file exits is ${file.exists()}");
                 binding.pdfView.fromFile(file).enableSwipe(true)
                         .defaultPage(i)
                         .onLoad(nbPages -> binding.progress.setVisibility(View.GONE))
@@ -151,6 +167,26 @@ public class PdfActivity extends AppCompatActivity {
 
         }
 
+        private void hide(){
+        if (handler!=null)handler.removeCallbacksAndMessages(null);
+        isHide=false;
+        binding.toolbar3.setVisibility(View.VISIBLE);
+        binding.toolbar4.setVisibility(View.VISIBLE);
+        binding.pageSelection.setVisibility(View.VISIBLE);
 
+        handler=new Handler();
+        handler.postDelayed((Runnable) () -> {
+            isHide=true;
+            binding.toolbar3.setVisibility(View.GONE);
+            binding.toolbar4.setVisibility(View.GONE);
+            binding.pageSelection.setVisibility(View.GONE);
+        },3000);
 
         }
+
+    @Override
+    public void onBackPressed() {
+        if (isHide)hide();
+        else super.onBackPressed();
+    }
+}
