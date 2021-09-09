@@ -52,9 +52,11 @@ public class PdfActivityFull extends AppCompatActivity {
 
         isNightMode=preference.getBoolean("night",false);
         isVertical=preference.getBoolean("mode",true);
+
+        Log.i("123321",isVertical.toString());
         clickEvents();
         checkNightMode();
-        modeSelection();
+
 
 
         Log.i("123321","page:"+getIntent().getIntExtra("current_page",0));
@@ -76,7 +78,7 @@ public class PdfActivityFull extends AppCompatActivity {
             startActivity(new Intent(this, PdfActivity.class)
             .putExtra("path",getIntent().getStringExtra("path"))
 
-                    .putExtra("page",binding.pdfView.getCurrentPage())
+                    .putExtra("current_page",binding.pdfView.getCurrentPage())
             );
             finish();
 
@@ -129,7 +131,7 @@ public class PdfActivityFull extends AppCompatActivity {
     private void modeSelection() {
         isVertical=!isVertical;
         SharedPreferences.Editor editor=getSharedPreferences("mode", MODE_PRIVATE).edit();
-        editor.putBoolean("mode",preference.getBoolean("mode",isVertical));
+        editor.putBoolean("mode",isVertical);
         editor.apply();
         binding.mode.setRotation(binding.mode.getRotation()+90);
     }

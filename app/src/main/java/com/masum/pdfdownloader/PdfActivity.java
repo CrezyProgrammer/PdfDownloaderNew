@@ -32,22 +32,20 @@ public class PdfActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding= ActivityPdfBinding.inflate(getLayoutInflater());
 
+        setContentView(binding.getRoot());
+
+
         preference=getSharedPreferences("mode", MODE_PRIVATE);
         isFullScreen=preference.getBoolean("fullScreen",false);
-        if (isFullScreen) {
-            Log.i("123321",isFullScreen.toString());
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
-        setContentView(binding.getRoot());
+
         binding.fullScreen.setImageDrawable(ContextCompat.getDrawable(this,isFullScreen?R.drawable.ic_baseline_fullscreen_24:R.drawable.ic_baseline_fullscreen_exit_24));
 
         isNightMode=preference.getBoolean("night",false);
         isVertical=preference.getBoolean("mode",true);
         clickEvents();
         checkNightMode();
-        modeSelection();
+        Log.i("123321",isVertical.toString());
+
 
 
         Log.i("123321","nightMode:"+isNightMode);
@@ -112,9 +110,12 @@ public class PdfActivity extends AppCompatActivity {
 
     private void modeSelection() {
         isVertical=!isVertical;
+
+        Log.i("123321","isVertical is:"+isVertical);
         SharedPreferences.Editor editor=getSharedPreferences("mode", MODE_PRIVATE).edit();
-        editor.putBoolean("mode",preference.getBoolean("mode",isVertical));
+        editor.putBoolean("mode",isVertical);
         editor.apply();
+        Log.i("123321","applay as:"+preference.getBoolean("mode",false));
         binding.mode.setRotation(binding.mode.getRotation()+90);
     }
 
